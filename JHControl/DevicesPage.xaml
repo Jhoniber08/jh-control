@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:JHControl"
+             xmlns:m="clr-namespace:JHControl.Models"
+             x:Class="JHControl.DevicesPage"
+             x:DataType="local:DevicesPage"
+             Title="Mis televisores"
+             BackgroundColor="{StaticResource Bg}">
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="10" MaximumWidthRequest="520">
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Buscar televisor" FontSize="24" FontAttributes="Bold" />
+                        <Label x:Name="SubLbl" FontSize="14" TextColor="{StaticResource Mut}" />
+                    </VerticalStackLayout>
+                    <Grid x:Name="Spinner" Grid.Column="1" WidthRequest="54" HeightRequest="54" VerticalOptions="Center">
+                        <Ellipse x:Name="Pulse" Fill="#4F8CFF" Opacity="0.5" WidthRequest="54" HeightRequest="54" />
+                        <Ellipse Fill="#4F8CFF" WidthRequest="18" HeightRequest="18" />
+                    </Grid>
+                </Grid>
+                <ProgressBar x:Name="Prog" ProgressColor="{StaticResource Acc}" />
+
+                <!-- TVs encontradas -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Found}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="m:TvDevice">
+                            <Border Style="{StaticResource Card}" Opacity="{Binding RowOpacity}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnFoundTapped" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Border BackgroundColor="{Binding BrandColor}" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 8" Padding="8,4" VerticalOptions="Center">
+                                        <Label Text="{Binding BrandLabel}" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" LineBreakMode="TailTruncation" MaxLines="1" />
+                                        <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{StaticResource Mut}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="Conectar ›" TextColor="{StaticResource Acc}" FontAttributes="Bold"
+                                           VerticalOptions="Center" IsVisible="{Binding IsSupported}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Ayuda si no aparece nada -->
+                <Border x:Name="EmptyBox" IsVisible="False" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="¿No aparece tu TV?" FontAttributes="Bold" FontSize="15" />
+                        <Label FontSize="13" TextColor="{StaticResource Mut}" LineHeight="1.25"
+                               Text="• La TV debe estar encendida.&#10;• Teléfono y TV en el mismo WiFi (no la red de invitados).&#10;• Roku: Configuración → Sistema → Configuración avanzada del sistema → Control por aplicaciones móviles → Acceso de red: Predeterminado.&#10;• Samsung: Configuración → General → Administrador de dispositivos externos → Administrador de conexión de dispositivos → Notificación de acceso: Activado.&#10;• LG: Configuración → Conexión → LG Connect Apps: Activado.&#10;• Android / Google TV: la primera vez la TV muestra un código; escríbelo en el teléfono.&#10;• Si tu router tiene «Aislamiento AP / de clientes», desactívalo." />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Infrarrojo (solo si el teléfono tiene) -->
+                <Border x:Name="IrBox" IsVisible="False" Style="{StaticResource Card}" Margin="0,8,0,0">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="📡 Tu teléfono tiene infrarrojo" FontAttributes="Bold" FontSize="15" />
+                        <Label Text="Sirve hasta con TVs que no son Smart ni tienen WiFi. Elige la marca y apunta el teléfono a la TV."
+                               FontSize="13" TextColor="{StaticResource Mut}" />
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Button Text="Samsung" HeightRequest="44" CommandParameter="samsung" Clicked="OnIrBrand" />
+                            <Button Grid.Column="1" Text="LG" HeightRequest="44" CommandParameter="lg" Clicked="OnIrBrand" />
+                            <Button Grid.Column="2" Text="Sony" HeightRequest="44" CommandParameter="sony" Clicked="OnIrBrand" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Guardadas -->
+                <Label x:Name="SavedTitle" Text="GUARDADAS" FontSize="12" FontAttributes="Bold"
+                       TextColor="{StaticResource Mut}" Margin="0,14,0,0" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Saved}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="m:TvDevice">
+                            <Border Style="{StaticResource Card}" Padding="14,6,6,6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSavedTapped" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Border BackgroundColor="{Binding BrandColor}" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 8" Padding="8,4" VerticalOptions="Center">
+                                        <Label Text="{Binding BrandLabel}" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" LineBreakMode="TailTruncation" MaxLines="1" />
+                                        <Label Text="{Binding Ip}" FontSize="12" TextColor="{StaticResource Mut}" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2" Text="✕" WidthRequest="44" HeightRequest="44" CornerRadius="12"
+                                            Clicked="OnDeleteSaved" CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Manual (escondido) -->
+                <Button Text="¿No aparece? Agregar con IP" BackgroundColor="Transparent" BorderWidth="0"
+                        TextColor="{StaticResource Mut}" FontSize="13" Clicked="OnToggleManual" Margin="0,10,0,0" />
+                <Border x:Name="ManualBox" IsVisible="False" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Entry x:Name="ManualName" Placeholder="Nombre (ej. TV Sala)" />
+                        <Picker x:Name="ManualBrand" Title="Marca" SelectedIndex="0">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Roku / Roku TV</x:String>
+                                    <x:String>Samsung</x:String>
+                                    <x:String>LG (webOS)</x:String>
+                                    <x:String>Android TV / Google TV</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                        <Entry x:Name="ManualIp" Placeholder="IP de la TV (ej. 192.168.1.45)" Keyboard="Url" />
+                        <Button Text="Agregar y conectar" BackgroundColor="{StaticResource Acc}" BorderWidth="0" Clicked="OnAddManual" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Button x:Name="SearchBtn" Grid.Row="1" Text="Buscar de nuevo" Margin="16,8,16,16"
+                BackgroundColor="{StaticResource Acc}" BorderWidth="0" Clicked="OnSearchClicked" />
+    </Grid>
+</ContentPage>
